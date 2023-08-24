@@ -1,95 +1,158 @@
+"use client"
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
+import Head from 'next/head';
+
+type PokemonData = {
+	name: string;
+	sprites: {
+		front_default: string;
+		other: {
+			'official-artwork': {
+				front_default: string;
+			}
+		}
+	};
+};
+
+type PokemonState = {
+	word: string;
+	image: string;
+};
 
 export default function Home() {
+	const [typedWord, setTypedWord] = useState<string>("");
+	const [score, setScore] = useState<number>(0);
+	const [message, setMessage] = useState<string>("Please start the game.");
+	const [timeLeft, setTimeLeft] = useState<number>(60);
+	const [isGameActive, setIsGameActive] = useState<boolean>(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const [previousWord, setPreviousWord] = useState<string>("");
+	const [pokemon, setPokemon] = useState<PokemonState>({ word: "", image: "" });
+
+	const startGame = () => {
+		setScore(0);
+		setMessage("");
+		setIsGameActive(true);
+		fetchWord();
+	};
+
+	const resetGame = () => {
+		setIsGameActive(false);
+		setTimeLeft(60);
+		setScore(0);
+		setTypedWord("");
+		setMessage("Reset.");
+		fetchWord();
+	};
+
+	useEffect(() => {
+		if (isGameActive && inputRef.current) {
+			setMessage("Please type this Pokemon.");
+			inputRef.current.focus();
+		}
+	}, [isGameActive]);
+
+	useEffect(() => {
+		if (isGameActive && timeLeft > 0) {
+			const timerId = setTimeout(() => {
+				setTimeLeft(prevTime => prevTime - 1);
+			}, 1000);
+			return () => clearTimeout(timerId);
+		} else if (timeLeft === 0) {
+			setIsGameActive(false);
+			setMessage("Time up!");
+		}
+	}, [timeLeft, isGameActive]);
+
+	const fetchWord = async () => {
+		try {
+			const randomId = Math.floor(Math.random() * 800) + 1;
+			const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+			const data: PokemonData = await response.json();
+			
+			const randomWord = data.name !== previousWord ? data.name : "";
+			const officialArtwork = data.sprites.other['official-artwork'].front_default;
+			const image = officialArtwork ? officialArtwork : data.sprites.front_default;
+
+			setPreviousWord(randomWord);
+			setPokemon({ word: randomWord, image });
+
+		} catch (error) {
+			setMessage("Please try again.");
+		}
+	};
+
+	useEffect(() => {
+		if (pokemon.word === typedWord) {
+			setScore(prevScore => prevScore + 10);
+			fetchWord();
+			setTypedWord("");
+		}
+	}, [typedWord, pokemon.word]);
+
+	useEffect(() => {
+		setScore(0);
+	}, []);
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+		<>
+		<Head>
+			<title>Pokemon Typing Game</title>
+				<link rel="preload" href="https://fonts.gstatic.com/s/josefinsans/v26/Qw3PZQNVED7rKGKxtqIqX5E-AVSJrOCfjY46_N_XbMZhKSbpUVzEEQ.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap" rel="stylesheet" />
+		</Head>
+		<div className={styles.wrapper}>
+			<header>
+				<div className={styles.headLeft}>
+					<Image src="/25.webp" alt="Pikachu" width={90} height={90} priority />
+					<h1>Pokemon Typing Game</h1>
+				</div>
+				<div className={styles.headRight}>
+					<p>Time:<span>{timeLeft}</span></p>
+					<p>Score:<span>{score}</span></p>
+				</div>
+			</header>
+			<main>
+				<div className={styles.typeBox}>
+					<p className={styles.message}>{message}</p>
+					{isGameActive && pokemon.word && (
+						<>
+							<p><img src={pokemon.image} alt={pokemon.word} width="130" height="130" /></p>
+							<p className={styles.currentWord}>{pokemon.word}</p>
+						</>
+					)}
+					{isGameActive ? (
+						<input 
+							ref={inputRef}
+							type="text"
+							value={typedWord}
+							onChange={(e) => {
+								setTypedWord(e.target.value);
+							}}
+						/>
+					) : null}
+					<div className={styles.btnBox}>
+						<button 
+							onClick={startGame} 
+							className={styles.startGameBtn} 
+							disabled={isGameActive || timeLeft === 0}
+						>
+							Start Game
+						</button>
+						<button
+							onClick={resetGame}
+							className={styles.resetGameBtn}
+							disabled={timeLeft === 60}
+						>
+							Reset Game
+						</button>
+					</div>
+				</div>
+			</main>
+		</div>
+		</>
   )
 }
