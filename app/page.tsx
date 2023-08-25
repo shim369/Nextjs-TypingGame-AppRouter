@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image'
 import styles from './page.module.css'
-import Head from 'next/head';
 
 type PokemonData = {
 	name: string;
@@ -97,13 +96,6 @@ export default function Home() {
 	}, []);
   return (
 		<>
-		<Head>
-			<title>Pokemon Typing Game</title>
-				<link rel="preload" href="https://fonts.gstatic.com/s/josefinsans/v26/Qw3PZQNVED7rKGKxtqIqX5E-AVSJrOCfjY46_N_XbMZhKSbpUVzEEQ.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-				<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap" rel="stylesheet" />
-		</Head>
 		<div className={styles.wrapper}>
 			<header>
 				<div className={styles.headLeft}>
