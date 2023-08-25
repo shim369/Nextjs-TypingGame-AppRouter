@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Josefin_Sans } from 'next/font/google';
+import { Josefin_Sans } from 'next/font/google'
+import Head from 'next/head'
 
 const josefin_Sans = Josefin_Sans({
   subsets: ['latin'],
@@ -21,6 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100;200;300;400;500;600;700&display=swap" />
+      </Head>
       <body className={josefin_Sans.className}>{children}</body>
     </html>
   )
