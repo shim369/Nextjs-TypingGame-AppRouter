@@ -30,11 +30,16 @@ export default function Home() {
 	const [previousWord, setPreviousWord] = useState<string>("");
 	const [pokemon, setPokemon] = useState<PokemonState>({ word: "", image: "" });
 
-	const startGame = () => {
+	const startGame = async () => {
 		setScore(0);
 		setMessage("");
-		setIsGameActive(true);
-		fetchWord();
+		try {
+			await fetchWord();
+			setIsGameActive(true);
+		} catch (error) {
+			setIsGameActive(false);
+			setMessage("Please try again.");
+		}
 	};
 
 	const resetGame = () => {
@@ -48,7 +53,7 @@ export default function Home() {
 
 	useEffect(() => {
 		if (isGameActive && inputRef.current) {
-			setMessage("Please type this Pokemon.");
+			setMessage("Please type this monster.");
 			inputRef.current.focus();
 		}
 	}, [isGameActive]);
@@ -70,7 +75,7 @@ export default function Home() {
 			const randomId = Math.floor(Math.random() * 800) + 1;
 			const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
 			const data: PokemonData = await response.json();
-			
+
 			const randomWord = data.name !== previousWord ? data.name : "";
 			const officialArtwork = data.sprites.other['official-artwork'].front_default;
 			const image = officialArtwork ? officialArtwork : data.sprites.front_default;
@@ -94,57 +99,57 @@ export default function Home() {
 	useEffect(() => {
 		setScore(0);
 	}, []);
-  return (
+	return (
 		<>
-		<div className={styles.wrapper}>
-			<header>
-				<div className={styles.headLeft}>
-					<Image src="/25.webp" alt="Pikachu" width={90} height={90} priority />
-					<h1>Pokemon Typing Game</h1>
-				</div>
-				<div className={styles.headRight}>
-					<p>Time:<span>{timeLeft}</span></p>
-					<p>Score:<span>{score}</span></p>
-				</div>
-			</header>
-			<main>
-				<div className={styles.typeBox}>
-					<p className={styles.message}>{message}</p>
-					{isGameActive && pokemon.word && (
-						<>
-							<p><img src={pokemon.image} alt={pokemon.word} width="130" height="130" /></p>
-							<p className={styles.currentWord}>{pokemon.word}</p>
-						</>
-					)}
-					{isGameActive ? (
-						<input 
-							ref={inputRef}
-							type="text"
-							value={typedWord}
-							onChange={(e) => {
-								setTypedWord(e.target.value);
-							}}
-						/>
-					) : null}
-					<div className={styles.btnBox}>
-						<button 
-							onClick={startGame} 
-							className={styles.startGameBtn} 
-							disabled={isGameActive || timeLeft === 0}
-						>
-							Start Game
-						</button>
-						<button
-							onClick={resetGame}
-							className={styles.resetGameBtn}
-							disabled={timeLeft === 60}
-						>
-							Reset Game
-						</button>
+			<div className={styles.wrapper}>
+				<header>
+					<div className={styles.headLeft}>
+						<Image src="/25.webp" alt="Pikachu" width={90} height={90} priority />
+						<h1>Poke Typing Game</h1>
 					</div>
-				</div>
-			</main>
-		</div>
+					<div className={styles.headRight}>
+						<p>Time:<span>{timeLeft}</span></p>
+						<p>Score:<span>{score}</span></p>
+					</div>
+				</header>
+				<main>
+					<div className={styles.typeBox}>
+						<p className={styles.message}>{message}</p>
+						{isGameActive && pokemon.word && (
+							<>
+								<p><img src={pokemon.image} alt={pokemon.word} width="130" height="130" /></p>
+								<p className={styles.currentWord}>{pokemon.word}</p>
+							</>
+						)}
+						{isGameActive ? (
+							<input
+								ref={inputRef}
+								type="text"
+								value={typedWord}
+								onChange={(e) => {
+									setTypedWord(e.target.value);
+								}}
+							/>
+						) : null}
+						<div className={styles.btnBox}>
+							<button
+								onClick={startGame}
+								className={styles.startGameBtn}
+								disabled={isGameActive || timeLeft === 0}
+							>
+								Start Game
+							</button>
+							<button
+								onClick={resetGame}
+								className={styles.resetGameBtn}
+								disabled={timeLeft === 60}
+							>
+								Reset Game
+							</button>
+						</div>
+					</div>
+				</main>
+			</div>
 		</>
-  )
+	)
 }
