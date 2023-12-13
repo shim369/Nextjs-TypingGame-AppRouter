@@ -10,8 +10,8 @@ const josefin_Sans = Josefin_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Pokemon Typing Game',
-  description: 'Pokemon Typing Game by Poke API',
+  title: 'Poke Typing Game',
+  description: 'Poke Typing Game by Poke API',
 }
 
 export default function RootLayout({
