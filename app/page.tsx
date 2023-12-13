@@ -78,13 +78,14 @@ export default function Home() {
 
 			const randomWord = data.name !== previousWord ? data.name : "";
 			const officialArtwork = data.sprites.other['official-artwork'].front_default;
-			const image = officialArtwork ? officialArtwork : data.sprites.front_default;
+			const image = officialArtwork || data.sprites.front_default;
 
 			setPreviousWord(randomWord);
 			setPokemon({ word: randomWord, image });
 
 		} catch (error) {
 			setMessage("Please try again.");
+			throw error;
 		}
 	};
 
